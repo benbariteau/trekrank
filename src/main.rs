@@ -15,17 +15,17 @@ use askama::Template;
 
 #[derive(Serialize, Deserialize)]
 struct Episode {
-    Season: i8,
-    Title: String,
-    Link: String,
-    EpisodeNum: String,
-    Description: String,
-    Series: String,
+    season: i8,
+    title: String,
+    link: String,
+    episode_num: String,
+    description: String,
+    series: String,
 }
 
 
 fn app(_: &mut Request) -> IronResult<Response> {
-    let file = itry!(File::open("sorted_eps.json"));
+    let file = itry!(File::open("star_trek_rank.json"));
     let episodes: Vec<Episode> = itry!(serde_json::from_reader(file));
     let episodes_json = itry!(serde_json::to_string_pretty(&episodes));
     Ok(Response::with((status::Ok, episodes_json)))
