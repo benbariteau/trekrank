@@ -1,0 +1,14 @@
+<html>
+    <head>
+        <title>Star Trek</title>
+    </head>
+    <body>
+        <div>
+            <ol>
+                {% for episode in episodes %}
+                <li>{{ episode.title }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+    </body>
+</html>
