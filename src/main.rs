@@ -12,6 +12,7 @@ use iron::response::Response;
 use iron::IronResult;
 use iron::request::Request;
 use askama::Template;
+use iron::headers::ContentType;
 
 #[derive(Serialize, Deserialize)]
 struct Episode {
@@ -23,12 +24,23 @@ struct Episode {
     series: String,
 }
 
+#[derive(Template)]
+#[template(path="app.tmpl.html")]
+struct App {
+    episodes: Vec<Episode>,
+}
+
 
 fn app(_: &mut Request) -> IronResult<Response> {
     let file = itry!(File::open("star_trek_rank.json"));
     let episodes: Vec<Episode> = itry!(serde_json::from_reader(file));
-    let episodes_json = itry!(serde_json::to_string_pretty(&episodes));
-    Ok(Response::with((status::Ok, episodes_json)))
+
+    let mut response = Response::with((
+        status::Ok,
+        itry!(App{episodes: episodes}.render())
+    ));
+    response.headers.set(ContentType::html());
+    Ok(response)
 }
 
 fn main() {
