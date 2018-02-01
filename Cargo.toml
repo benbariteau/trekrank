@@ -1,0 +1,7 @@
+[package]
+name = "trekrank"
+version = "0.1.0"
+authors = ["\"Ben Bariteau <\"ben.bariteau@gmail.com\">"]
+
+[dependencies]
+iron = "^0.6.0"
