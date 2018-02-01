@@ -6,6 +6,9 @@ authors = ["\"Ben Bariteau <\"ben.bariteau@gmail.com\">"]
 [dependencies]
 iron = "^0.6.0"
 askama = "^0.5.0"
+serde_derive = "^1.0.0"
+serde = "^1.0.0"
+serde_json = "^1.0.0"
 
 [build-dependencies]
 askama = "^0.5.0"
