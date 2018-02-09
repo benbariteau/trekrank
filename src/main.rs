@@ -45,6 +45,7 @@ struct App {
     episodes: Vec<RankedEpisode>,
     show_description: bool,
     seasons: Vec<SeasonPresenter>,
+    show_rank: bool,
 }
 
 mod error {
@@ -99,12 +100,15 @@ fn app(req: &mut Request) -> IronResult<Response> {
         ),
     ).collect();
 
+    let show_rank = season.is_some();
+
     let mut response = Response::with((
         status::Ok,
         itry!(App{
             episodes: season_filtered_episodes,
             show_description: show_description,
             seasons: seasons,
+            show_rank: show_rank,
         }.render())
     ));
     response.headers.set(ContentType::html());

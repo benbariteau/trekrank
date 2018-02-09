@@ -24,6 +24,9 @@
                 {% for episode in episodes %}
                 <li>
                     {{ episode.episode.title }}
+                    {% if show_rank %}
+                        ({{episode.rank}})
+                    {% endif %}
                     {% if show_description %}
                         - {{episode.episode.description}}
                     {% endif %}
