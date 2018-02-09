@@ -84,14 +84,14 @@ fn app(req: &mut Request) -> IronResult<Response> {
         },
     ));
 
-    let season: Option<u8> = params.find(&["season"]).and_then(|ref value| {
+    let season_filter: Option<u8> = params.find(&["season"]).and_then(|ref value| {
         match value {
             &&Value::String(ref string) => string.parse().ok(),
             _ => None,
         }
     });
 
-    let series: Option<String> = params.find(&["series"]).and_then(|ref value| {
+    let series_filter: Option<String> = params.find(&["series"]).and_then(|ref value| {
         match value {
             &&Value::String(ref string) => {
                 let string = string.clone();
@@ -114,9 +114,9 @@ fn app(req: &mut Request) -> IronResult<Response> {
         }
     ).collect();
     let episodes: Vec<RankedEpisode> = episodes.into_iter().filter(
-        |episode| season.map_or(true, |season| episode.episode.season == season)
+        |episode| season_filter.map_or(true, |season| episode.episode.season == season)
     ).filter(
-        |episode| series.clone().map_or(true, |series| episode.episode.series == series)
+        |episode| series_filter.clone().map_or(true, |series| episode.episode.series == series)
     ).collect();
 
     let series_list: Vec<SeriesPresenter> = vec![
@@ -128,27 +128,27 @@ fn app(req: &mut Request) -> IronResult<Response> {
         let value = thing.value.clone();
         SeriesPresenter{
             series: thing,
-            selected: series.clone().map_or(false, |inner_series| inner_series == value),
+            selected: series_filter.clone().map_or(false, |inner_series| inner_series == value),
         }
     }).collect();
 
     let seasons = vec![SeasonPresenter{
         number: "".to_string(),
         display: "All Seasons".to_string(),
-        selected: season.is_none(),
+        selected: season_filter.is_none(),
     }].into_iter().chain(
         (1..7).map(
             |num| SeasonPresenter{
                 number: num.to_string(),
                 display: format!("Season {}", num),
-                selected: if let Some(selected) = season {
-                    selected == num
+                selected: if let Some(season) = season_filter {
+                    season == num
                 } else { false }
             }
         ),
     ).collect();
 
-    let show_rank = season.is_some() || series.is_some();
+    let show_rank = season_filter.is_some() || series_filter.is_some();
 
     let mut response = Response::with((
         status::Ok,
