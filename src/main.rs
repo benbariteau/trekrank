@@ -18,6 +18,7 @@ use std::fs::File;
 use params::Params;
 use params::Value;
 use iron::Plugin;
+use std::env;
 
 #[derive(Serialize, Deserialize)]
 struct Episode {
@@ -166,5 +167,6 @@ fn app(req: &mut Request) -> IronResult<Response> {
 
 fn main() {
     let chain = Chain::new(app);
-    Iron::new(chain).http("0.0.0.0:3000").unwrap();
+    let port: u16 = env::var("PORT").ok().and_then(|port| port.parse().ok()).unwrap_or(3000);
+    Iron::new(chain).http(format!("0.0.0.0:{}", port)).unwrap();
 }
