@@ -107,19 +107,12 @@ fn app(req: &mut Request) -> IronResult<Response> {
 
     let file = itry!(File::open("star_trek_rank.json"));
     let episodes: Vec<Episode> = itry!(serde_json::from_reader(file));
-    let ranked_episodes: Vec<RankedEpisode> = episodes.into_iter().enumerate().map(|(rank, episode)| RankedEpisode{rank: rank as u16, episode: episode}).collect();
-
-    let season_filtered_episodes = if let Some(season) = season {
-        ranked_episodes.into_iter().filter(|episode| episode.episode.season == season).collect()
-    } else {
-        ranked_episodes
-    };
-
-    let series_filtered_episodes = if let Some(series) = series.clone() {
-        season_filtered_episodes.into_iter().filter(|episode| episode.episode.series == series).collect()
-    } else {
-        season_filtered_episodes
-    };
+    let episodes: Vec<RankedEpisode> = episodes.into_iter().enumerate().map(|(rank, episode)| RankedEpisode{rank: rank as u16, episode: episode}).collect();
+    let episodes: Vec<RankedEpisode> = episodes.into_iter().filter(
+        |episode| season.map_or(true, |season| episode.episode.season == season)
+    ).filter(
+        |episode| series.clone().map_or(true, |series| episode.episode.series == series)
+    ).collect();
 
     let series_list: Vec<SeriesPresenter> = vec![
         Series{value: "", name: "All Series"},
@@ -155,7 +148,7 @@ fn app(req: &mut Request) -> IronResult<Response> {
     let mut response = Response::with((
         status::Ok,
         itry!(App{
-            episodes: series_filtered_episodes,
+            episodes: episodes,
             show_description: show_description,
             seasons: seasons,
             show_rank: show_rank,
