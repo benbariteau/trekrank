@@ -8,7 +8,9 @@
         <div style="margin: auto;">
             <ol>
                 {% for episode in episodes %}
-                <li>{{ episode.episode.title }}</li>
+                <li>
+                    {{ episode.episode.title }} - {{episode.episode.description}}
+                </li>
                 {% endfor %}
             </ol>
         </div>
