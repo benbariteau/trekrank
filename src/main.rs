@@ -38,6 +38,7 @@ struct RankedEpisode {
 #[template(path="app.tmpl.html")]
 struct App {
     episodes: Vec<RankedEpisode>,
+    show_description: bool,
 }
 
 mod error {
@@ -70,7 +71,10 @@ fn app(req: &mut Request) -> IronResult<Response> {
 
     let mut response = Response::with((
         status::Ok,
-        itry!(App{episodes: ranked_episodes}.render())
+        itry!(App{
+            episodes: ranked_episodes,
+            show_description: show_description,
+        }.render())
     ));
     response.headers.set(ContentType::html());
     Ok(response)
