@@ -65,14 +65,27 @@ fn app(req: &mut Request) -> IronResult<Response> {
         },
     ));
 
+    let season: Option<i8> = params.find(&["season"]).and_then(|ref value| {
+        match value {
+            &&Value::String(ref string) => string.parse().ok(),
+            _ => None,
+        }
+    });
+
     let file = itry!(File::open("star_trek_rank.json"));
     let episodes: Vec<Episode> = itry!(serde_json::from_reader(file));
     let ranked_episodes: Vec<RankedEpisode> = episodes.into_iter().enumerate().map(|(rank, episode)| RankedEpisode{rank: rank as u16, episode: episode}).collect();
 
+    let season_filtered_episodes = if let Some(season) = season {
+        ranked_episodes.into_iter().filter(|episode| episode.episode.season == season).collect()
+    } else {
+        ranked_episodes
+    };
+
     let mut response = Response::with((
         status::Ok,
         itry!(App{
-            episodes: ranked_episodes,
+            episodes: season_filtered_episodes,
             show_description: show_description,
         }.render())
     ));
