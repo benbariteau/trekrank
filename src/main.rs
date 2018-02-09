@@ -36,6 +36,7 @@ struct RankedEpisode {
 
 struct SeasonPresenter {
     number: String,
+    display: String,
     selected: bool,
 }
 
@@ -133,10 +134,15 @@ fn app(req: &mut Request) -> IronResult<Response> {
         }
     }).collect();
 
-    let seasons = vec![SeasonPresenter{number: "".to_string(), selected: season.is_none()}].into_iter().chain(
+    let seasons = vec![SeasonPresenter{
+        number: "".to_string(),
+        display: "All Seasons".to_string(),
+        selected: season.is_none(),
+    }].into_iter().chain(
         (1..7).map(
             |num| SeasonPresenter{
                 number: num.to_string(),
+                display: format!("Season {}", num),
                 selected: if let Some(selected) = season {
                     selected == num
                 } else { false }

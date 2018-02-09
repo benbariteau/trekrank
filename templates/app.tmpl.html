@@ -15,7 +15,7 @@
 
                 <select name="season">
                     {% for season in seasons %}
-                        <option value="{{ season.number }}" {% if season.selected %} selected {% endif %}>Season {{ season.number }}</option>
+                        <option value="{{ season.number }}" {% if season.selected %} selected {% endif %}>{{ season.display }}</option>
                     {% endfor %}
                 </select>
 
