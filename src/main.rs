@@ -21,7 +21,7 @@ use iron::Plugin;
 
 #[derive(Serialize, Deserialize)]
 struct Episode {
-    season: i8,
+    season: u8,
     title: String,
     link: String,
     episode_num: String,
@@ -34,11 +34,17 @@ struct RankedEpisode {
     episode: Episode,
 }
 
+struct SeasonPresenter {
+    number: String,
+    selected: bool,
+}
+
 #[derive(Template)]
 #[template(path="app.tmpl.html")]
 struct App {
     episodes: Vec<RankedEpisode>,
     show_description: bool,
+    seasons: Vec<SeasonPresenter>,
 }
 
 mod error {
@@ -65,7 +71,7 @@ fn app(req: &mut Request) -> IronResult<Response> {
         },
     ));
 
-    let season: Option<i8> = params.find(&["season"]).and_then(|ref value| {
+    let season: Option<u8> = params.find(&["season"]).and_then(|ref value| {
         match value {
             &&Value::String(ref string) => string.parse().ok(),
             _ => None,
@@ -82,11 +88,23 @@ fn app(req: &mut Request) -> IronResult<Response> {
         ranked_episodes
     };
 
+    let seasons = vec![SeasonPresenter{number: "".to_string(), selected: season.is_none()}].into_iter().chain(
+        (1..7).map(
+            |num| SeasonPresenter{
+                number: num.to_string(),
+                selected: if let Some(selected) = season {
+                    selected == num
+                } else { false }
+            }
+        ),
+    ).collect();
+
     let mut response = Response::with((
         status::Ok,
         itry!(App{
             episodes: season_filtered_episodes,
             show_description: show_description,
+            seasons: seasons,
         }.render())
     ));
     response.headers.set(ContentType::html());
