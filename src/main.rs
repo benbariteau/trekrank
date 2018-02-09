@@ -39,13 +39,24 @@ struct SeasonPresenter {
     selected: bool,
 }
 
+struct Series<'a> {
+    value: &'a str,
+    name: &'a str,
+}
+
+struct SeriesPresenter<'a> {
+    series: Series<'a>,
+    selected: bool,
+}
+
 #[derive(Template)]
 #[template(path="app.tmpl.html")]
-struct App {
+struct App<'a> {
     episodes: Vec<RankedEpisode>,
     show_description: bool,
     seasons: Vec<SeasonPresenter>,
     show_rank: bool,
+    series_list: Vec<SeriesPresenter<'a>>,
 }
 
 mod error {
@@ -109,6 +120,19 @@ fn app(req: &mut Request) -> IronResult<Response> {
         season_filtered_episodes
     };
 
+    let series_list: Vec<SeriesPresenter> = vec![
+        Series{value: "", name: "All Series"},
+        Series{value: "TNG", name: "The Next Generation"},
+        Series{value: "DS9", name: "Deep Space 9"},
+        Series{value: "Voyager", name: "Voyager"},
+    ].into_iter().map(|thing| {
+        let value = thing.value.clone();
+        SeriesPresenter{
+            series: thing,
+            selected: series.clone().map_or(false, |inner_series| inner_series == value),
+        }
+    }).collect();
+
     let seasons = vec![SeasonPresenter{number: "".to_string(), selected: season.is_none()}].into_iter().chain(
         (1..7).map(
             |num| SeasonPresenter{
@@ -129,6 +153,7 @@ fn app(req: &mut Request) -> IronResult<Response> {
             show_description: show_description,
             seasons: seasons,
             show_rank: show_rank,
+            series_list: series_list,
         }.render())
     ));
     response.headers.set(ContentType::html());

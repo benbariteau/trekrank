@@ -8,10 +8,9 @@
         <div style="margin: 10px;">
             <form method="GET">
                 <select name="series">
-                    <option value=""></option>
-                    <option value="TNG">The Next Generation</option>
-                    <option value="DS9">Deep Space 9</option>
-                    <option value="Voyager">Voyager</option>
+                    {% for series in series_list %}
+                        <option value="{{series.series.value}}" {%if series.selected %} selected {%endif%}>{{series.series.name}}</option>
+                    {% endfor %}
                 </select>
 
                 <select name="season">
