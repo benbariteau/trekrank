@@ -5,6 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
+        <div style="margin: 10px;">
+            <form method="GET">
+                <input type="checkbox" id="showDescription" name="description" value="show">
+                <label for="showDescription">Show Description</label>
+
+                <button type="submit" class="btn">Engage</button>
+            </form>
+        </div>
         <div>
             <ol>
                 {% for episode in episodes %}
