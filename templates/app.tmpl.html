@@ -7,6 +7,13 @@
     <body>
         <div style="margin: 10px;">
             <form method="GET">
+                <select name="series">
+                    <option value=""></option>
+                    <option value="TNG">The Next Generation</option>
+                    <option value="DS9">Deep Space 9</option>
+                    <option value="Voyager">Voyager</option>
+                </select>
+
                 <select name="season">
                     {% for season in seasons %}
                         <option value="{{ season.number }}" {% if season.selected %} selected {% endif %}>Season {{ season.number }}</option>
