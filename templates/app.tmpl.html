@@ -5,10 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <div>
+        <div style="margin: auto;">
             <ol>
                 {% for episode in episodes %}
-                <li>{{ episode.title }}</li>
+                <li>{{ episode.episode.title }}</li>
                 {% endfor %}
             </ol>
         </div>
