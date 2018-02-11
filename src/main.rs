@@ -113,19 +113,24 @@ fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
         }
     )?;
 
-    let series_filter: Option<String> = raw_params.find(&["series"]).and_then(|ref value| {
-        match value {
-            &&Value::String(ref string) => {
-                let string = string.clone();
-                if vec!["TNG", "DS9", "Voyager"].contains(&string.as_str()) {
-                    Some(string)
-                } else {
-                    None
-                }
-            },
-            _ => None,
-        }
-    });
+    let series_filter: Option<String> = raw_params.find(&["series"]).map_or(
+        Ok(None),
+        |ref value| -> error::Result<Option<String>> {
+            match value {
+                &&Value::String(ref string) => {
+                    let string = string.clone();
+                    if vec!["TNG", "DS9", "Voyager"].contains(&string.as_str()) {
+                        Ok(Some(string))
+                    } else if string == ""{
+                        Ok(None)
+                    } else {
+                        Err(format!("invalid season '{}'", string).into())
+                    }
+                },
+                _ => Err("series is wrong type".into()),
+            }
+        },
+    )?;
 
 
     Ok(AppParams{
