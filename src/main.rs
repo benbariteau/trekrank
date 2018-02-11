@@ -65,11 +65,12 @@ mod error {
     error_chain!{}
 }
 
+struct AppParams {
+    show_description: bool,
+}
 
-fn app(req: &mut Request) -> IronResult<Response> {
-    let params = req.get::<Params>().unwrap();
-
-    let show_description = itry!(params.find(&["description"]).map_or_else(
+fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
+    let show_description = raw_params.find(&["description"]).map_or_else(
         || Ok(false),
         |ref value| -> Result<bool, error::Error> {
             match value {
@@ -83,7 +84,19 @@ fn app(req: &mut Request) -> IronResult<Response> {
                 _ => Err("invalid type for description".into())
             }
         },
-    ));
+    )?;
+
+
+    Ok(AppParams{
+        show_description: show_description
+    })
+}
+
+
+fn app(req: &mut Request) -> IronResult<Response> {
+    let params = req.get::<Params>().unwrap();
+
+    let show_description = itry!(get_app_params(&params)).show_description;
 
     let season_filter: Option<u8> = params.find(&["season"]).and_then(|ref value| {
         match value {
