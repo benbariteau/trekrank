@@ -16,7 +16,6 @@ use iron::middleware::Chain;
 use iron::request::Request;
 use iron::response::Response;
 use iron::status;
-use std::fs::File;
 use params::Params;
 use params::Value;
 use iron::Plugin;
@@ -192,8 +191,8 @@ fn app(req: &mut Request) -> IronResult<Response> {
         series_filter,
     } = itry!(get_app_params(&params));
 
-    let file = itry!(File::open("star_trek_rank.json"));
-    let episodes: Vec<Episode> = itry!(serde_json::from_reader(file));
+    let rankings_json = include_str!("star_trek_rank.json");
+    let episodes: Vec<Episode> = itry!(serde_json::from_str(rankings_json));
     let episodes: Vec<RankedEpisode> = episodes.into_iter().enumerate().map(
         |(rank, episode)| RankedEpisode{
             rank: (rank + 1) as u16,
