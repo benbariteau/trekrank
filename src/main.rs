@@ -70,8 +70,8 @@ struct AppParams {
 }
 
 fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
-    let show_description = raw_params.find(&["description"]).map_or_else(
-        || Ok(false),
+    let show_description = raw_params.find(&["description"]).map_or(
+        Ok(false),
         |ref value| -> Result<bool, error::Error> {
             match value {
                 &&Value::String(ref string) => {
@@ -88,7 +88,7 @@ fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
 
 
     Ok(AppParams{
-        show_description: show_description
+        show_description: show_description,
     })
 }
 
