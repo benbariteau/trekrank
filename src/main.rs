@@ -127,20 +127,26 @@ fn app(req: &mut Request) -> IronResult<Response> {
     ).collect();
 
     let series_list: Vec<SeriesPresenter> = vec![
-        Series{value: "", name: "All Series"},
-        Series{value: "TNG", name: "The Next Generation"},
-        Series{value: "DS9", name: "Deep Space 9"},
-        Series{value: "Voyager", name: "Voyager"},
-    ].into_iter().map(|thing| {
-        let value = thing.value.clone();
         SeriesPresenter{
-            series: thing,
-            selected: series_filter.clone().map_or(
-                false,
-                |inner_series| inner_series == value,
-            ),
-        }
-    }).collect();
+            series: Series{value: "", name: "All Series"},
+            selected: series_filter.is_none(),
+        },
+    ].into_iter().chain(
+        vec![
+            Series{value: "TNG", name: "The Next Generation"},
+            Series{value: "DS9", name: "Deep Space 9"},
+            Series{value: "Voyager", name: "Voyager"},
+        ].into_iter().map(|thing| {
+            let value = thing.value.clone();
+            SeriesPresenter{
+                series: thing,
+                selected: series_filter.clone().map_or(
+                    false,
+                    |inner_series| inner_series == value,
+                ),
+            }
+        })
+    ).collect();
 
     let seasons = vec![SeasonPresenter{
         number: "".to_string(),
