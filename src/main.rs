@@ -1,5 +1,7 @@
 extern crate serde_json;
 extern crate params;
+extern crate logger;
+extern crate env_logger;
 
 #[macro_use] extern crate askama;
 #[macro_use] extern crate iron;
@@ -19,6 +21,7 @@ use params::Params;
 use params::Value;
 use iron::Plugin;
 use std::env;
+use logger::Logger;
 
 #[derive(Serialize, Deserialize)]
 struct Episode {
@@ -221,7 +224,12 @@ fn app(req: &mut Request) -> IronResult<Response> {
 }
 
 fn main() {
-    let chain = Chain::new(app);
+    env_logger::init();
+    let mut chain = Chain::new(app);
+    let (logger_before, logger_after) = Logger::new(None);
+    chain.link_before(logger_before);
+    chain.link_after(logger_after);
+
     let port: u16 = env::var("PORT").ok().and_then(
         |port| port.parse().ok()
     ).unwrap_or(3000);
