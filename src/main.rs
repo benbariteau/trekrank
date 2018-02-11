@@ -115,9 +115,15 @@ fn app(req: &mut Request) -> IronResult<Response> {
         }
     ).collect();
     let episodes: Vec<RankedEpisode> = episodes.into_iter().filter(
-        |episode| season_filter.map_or(true, |season| episode.episode.season == season)
+        |episode| season_filter.map_or(
+            true,
+            |season| episode.episode.season == season,
+        )
     ).filter(
-        |episode| series_filter.clone().map_or(true, |series| episode.episode.series == series)
+        |episode| series_filter.clone().map_or(
+            true,
+            |series| episode.episode.series == series,
+        ),
     ).collect();
 
     let series_list: Vec<SeriesPresenter> = vec![
@@ -129,7 +135,10 @@ fn app(req: &mut Request) -> IronResult<Response> {
         let value = thing.value.clone();
         SeriesPresenter{
             series: thing,
-            selected: series_filter.clone().map_or(false, |inner_series| inner_series == value),
+            selected: series_filter.clone().map_or(
+                false,
+                |inner_series| inner_series == value,
+            ),
         }
     }).collect();
 
@@ -167,6 +176,8 @@ fn app(req: &mut Request) -> IronResult<Response> {
 
 fn main() {
     let chain = Chain::new(app);
-    let port: u16 = env::var("PORT").ok().and_then(|port| port.parse().ok()).unwrap_or(3000);
+    let port: u16 = env::var("PORT").ok().and_then(
+        |port| port.parse().ok()
+    ).unwrap_or(3000);
     Iron::new(chain).http(format!("0.0.0.0:{}", port)).unwrap();
 }
