@@ -65,6 +65,8 @@ mod error {
     error_chain!{}
 }
 
+use error::ResultExt;
+
 struct AppParams {
     show_description: bool,
     season_filter: Option<u8>,
@@ -88,16 +90,22 @@ fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
         },
     )?;
 
-    let season_filter: Option<u8> = raw_params.find(&["season"]).and_then(|ref value| {
-        match value {
-            &&Value::String(ref string) => {
-                string.parse().ok().and_then(
-                    |num| if num >= 1 && num <= 7 { Some(num) } else { None }
-                )
+    let season_filter: Option<u8> = raw_params.find(&["season"]).map_or(
+        Ok(None),
+        |ref value| -> Result<Option<u8>, error::Error> {
+            match value {
+                &&Value::String(ref string) => {
+                    let num = string.parse().chain_err(|| "parse error")?;
+                    if num >= 1 && num <= 7 {
+                        Ok(Some(num))
+                    } else {
+                        Err("invalid season".into())
+                    }
+                }
+                _ => Ok(None),
             }
-            _ => None,
         }
-    });
+    )?;
 
     let series_filter: Option<String> = raw_params.find(&["series"]).and_then(|ref value| {
         match value {
