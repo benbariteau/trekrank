@@ -153,6 +153,24 @@ fn get_series_list<'a>(series_filter: Option<String>) -> Vec<SeriesPresenter<'a>
     ).collect()
 }
 
+fn get_seasons(season_filter: Option<u8>) -> Vec<SeasonPresenter> {
+    vec![SeasonPresenter{
+        number: "".to_string(),
+        display: "All Seasons".to_string(),
+        selected: season_filter.is_none(),
+    }].into_iter().chain(
+        vec![1, 2, 3, 4, 5, 6, 7].into_iter().map(
+            |num| SeasonPresenter{
+                number: num.to_string(),
+                display: format!("Season {}", num),
+                selected: if let Some(season) = season_filter {
+                    season == num
+                } else { false }
+            }
+        ),
+    ).collect()
+}
+
 
 fn app(req: &mut Request) -> IronResult<Response> {
     let params = req.get::<Params>().unwrap();
@@ -184,22 +202,7 @@ fn app(req: &mut Request) -> IronResult<Response> {
     ).collect();
 
     let series_list = get_series_list(series_filter.clone());
-
-    let seasons = vec![SeasonPresenter{
-        number: "".to_string(),
-        display: "All Seasons".to_string(),
-        selected: season_filter.is_none(),
-    }].into_iter().chain(
-        vec![1, 2, 3, 4, 5, 6, 7].into_iter().map(
-            |num| SeasonPresenter{
-                number: num.to_string(),
-                display: format!("Season {}", num),
-                selected: if let Some(season) = season_filter {
-                    season == num
-                } else { false }
-            }
-        ),
-    ).collect();
+    let seasons = get_season_list(season_filter);
 
     let show_rank = season_filter.is_some() || series_filter.is_some();
 
