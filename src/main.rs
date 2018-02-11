@@ -98,6 +98,9 @@ fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
         |ref value| -> Result<Option<u8>, error::Error> {
             match value {
                 &&Value::String(ref string) => {
+                    if string == "" {
+                        return Ok(None)
+                    }
                     let num = string.parse().chain_err(|| "parse error")?;
                     if num >= 1 && num <= 7 {
                         Ok(Some(num))
@@ -205,7 +208,7 @@ fn app(req: &mut Request) -> IronResult<Response> {
     ).collect();
 
     let series_list = get_series_list(series_filter.clone());
-    let seasons = get_season_list(season_filter);
+    let seasons = get_seasons(season_filter);
 
     let show_rank = season_filter.is_some() || series_filter.is_some();
 
