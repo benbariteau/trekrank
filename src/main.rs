@@ -68,6 +68,7 @@ mod error {
 struct AppParams {
     show_description: bool,
     season_filter: Option<u8>,
+    series_filter: Option<String>,
 }
 
 fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
@@ -94,23 +95,7 @@ fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
         }
     });
 
-
-    Ok(AppParams{
-        show_description: show_description,
-        season_filter: season_filter,
-    })
-}
-
-
-fn app(req: &mut Request) -> IronResult<Response> {
-    let params = req.get::<Params>().unwrap();
-
-    let AppParams{
-        show_description,
-        season_filter,
-    } = itry!(get_app_params(&params));
-
-    let series_filter: Option<String> = params.find(&["series"]).and_then(|ref value| {
+    let series_filter: Option<String> = raw_params.find(&["series"]).and_then(|ref value| {
         match value {
             &&Value::String(ref string) => {
                 let string = string.clone();
@@ -123,6 +108,24 @@ fn app(req: &mut Request) -> IronResult<Response> {
             _ => None,
         }
     });
+
+
+    Ok(AppParams{
+        show_description: show_description,
+        season_filter: season_filter,
+        series_filter: series_filter,
+    })
+}
+
+
+fn app(req: &mut Request) -> IronResult<Response> {
+    let params = req.get::<Params>().unwrap();
+
+    let AppParams{
+        show_description,
+        season_filter,
+        series_filter,
+    } = itry!(get_app_params(&params));
 
     let file = itry!(File::open("star_trek_rank.json"));
     let episodes: Vec<Episode> = itry!(serde_json::from_reader(file));
