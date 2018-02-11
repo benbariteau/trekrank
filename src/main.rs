@@ -90,7 +90,11 @@ fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
 
     let season_filter: Option<u8> = raw_params.find(&["season"]).and_then(|ref value| {
         match value {
-            &&Value::String(ref string) => string.parse().ok(),
+            &&Value::String(ref string) => {
+                string.parse().ok().and_then(
+                    |num| if num >= 1 && num <= 7 { Some(num) } else { None }
+                )
+            }
             _ => None,
         }
     });
