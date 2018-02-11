@@ -67,6 +67,7 @@ mod error {
 
 struct AppParams {
     show_description: bool,
+    season_filter: Option<u8>,
 }
 
 fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
@@ -86,9 +87,17 @@ fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
         },
     )?;
 
+    let season_filter: Option<u8> = raw_params.find(&["season"]).and_then(|ref value| {
+        match value {
+            &&Value::String(ref string) => string.parse().ok(),
+            _ => None,
+        }
+    });
+
 
     Ok(AppParams{
         show_description: show_description,
+        season_filter: season_filter,
     })
 }
 
@@ -96,14 +105,10 @@ fn get_app_params(raw_params: &params::Map) -> Result<AppParams, error::Error> {
 fn app(req: &mut Request) -> IronResult<Response> {
     let params = req.get::<Params>().unwrap();
 
-    let show_description = itry!(get_app_params(&params)).show_description;
-
-    let season_filter: Option<u8> = params.find(&["season"]).and_then(|ref value| {
-        match value {
-            &&Value::String(ref string) => string.parse().ok(),
-            _ => None,
-        }
-    });
+    let AppParams{
+        show_description,
+        season_filter,
+    } = itry!(get_app_params(&params));
 
     let series_filter: Option<String> = params.find(&["series"]).and_then(|ref value| {
         match value {
