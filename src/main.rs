@@ -174,7 +174,7 @@ fn app(req: &mut Request) -> IronResult<Response> {
         display: "All Seasons".to_string(),
         selected: season_filter.is_none(),
     }].into_iter().chain(
-        (1..7).map(
+        vec![1, 2, 3, 4, 5, 6, 7].into_iter().map(
             |num| SeasonPresenter{
                 number: num.to_string(),
                 display: format!("Season {}", num),
